@@ -4,7 +4,7 @@ Python Script that train a graph neural network for point cloud prediction using
 
 import os
 #os.environ['OPENBLAS_NUM_THREADS'] = '5'
-os.environ["CUDA_VISIBLE_DEVICES"]="7"
+#os.environ["CUDA_VISIBLE_DEVICES"]="7"
 import sys
 import io
 from datetime import datetime
