@@ -12,17 +12,11 @@ import argparse
 import numpy as np
 from PIL import Image
 import tensorflow as tf
-from datasets.Mixamo_Bodies import Bodys as Dataset_Full_Random_without_color
-
-
-# Basic Convolution
-#import models.GraphRNN_ShortTerm_models as models
+from datasets.Mixamo import Bodys as Dataset_Full_Random_without_color
 
 #Adaptative Modules
-import models.adaptative_GraphRNN_ShortTerm_models as models
+import models.AGAR as models
 
-# PointRNN Models
-#import models.PointRNN_ShortTerm_models as models
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 ROOT_DIR = os.path.dirname(BASE_DIR)
@@ -107,18 +101,6 @@ Model = getattr(models, model_name)
 print("Call model: ", model_name)
 
 
-"""
-model = Model(batch_size=args.batch_size,
-              seq_length=args.seq_length,
-              num_points=args.num_points,
-              num_samples=args.num_samples,
-              knn=True,
-              alpha=args.alpha,
-              beta=args.beta,
-              learning_rate=args.learning_rate,
-              max_gradient_norm=args.max_gradient_norm,
-              is_training=True)
-"""
 #For variable model
 model = Model(batch_size=args.batch_size,
               seq_length=args.seq_length,
