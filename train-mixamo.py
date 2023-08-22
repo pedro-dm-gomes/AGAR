@@ -12,7 +12,7 @@ import argparse
 import numpy as np
 from PIL import Image
 import tensorflow as tf
-from datasets.without_color.bodys_Full_Random_all import Bodys as Dataset_Full_Random_without_color
+from datasets.Mixamo_Bodies import Bodys as Dataset_Full_Random_without_color
 
 
 # Basic Convolution
