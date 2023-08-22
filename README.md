@@ -10,10 +10,7 @@ AGAR: Attention Graph-RNN for Adaptative Motion Prediction of Point Clouds of De
 
 
 This github proposes an improved architecture for point
-cloud prediction of deformable 3D objects. Specifically, to handle deformable shapes, we propose a graph-based
-approach that learns and exploits the spatial structure of point clouds to extract more representative features.
-Then we propose a module able to combine the learned features in a adaptative manner according to the point
-cloud movements. The proposed adaptative module controls the composition of local and global motions
+cloud prediction of deformable 3D objects, able to control the composition of local and global motions
 for each point, enabling the network to model complex motions in deformable 3D objects more effectively.
 
 ### Setup
