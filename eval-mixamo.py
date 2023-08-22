@@ -15,7 +15,7 @@ import time
 from PIL import Image
 import tensorflow as tf
 from sklearn.decomposition import PCA
-from datasets.without_color.bodys_eval import Bodys as Dataset_Bodies_eval
+from datasets.Mixamo_Eval import Bodys as Dataset_Bodies_eval
 from scipy.spatial import distance
 
 
@@ -288,8 +288,6 @@ def run_test_sequence(sequence_nr):
     log.write('[%s]\tTEST:[%10d:]\t[CD,EMD, CD5 ]:\t%.12f\t%.12f\t%.12f\n'%(str(datetime.now()), sequence_nr, cd, emd, cd_top5))
     log.flush()
     
-
-
     
     return (cd, emd, cd_top5)
 

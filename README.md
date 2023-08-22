@@ -1,6 +1,6 @@
 # AGAR
 
-Code is being upload!
+Code is currently being uploaded
 
 ### Overview
 A 
