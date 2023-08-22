@@ -3,7 +3,10 @@
 Code is currently being uploaded
 
 ### Overview
-A 
+
+<img src="https://github.com/pedro-dm-gomes/AGAR/blob/main/Figures/teaser_figure.png" scale="0.6">
+
+
 
 ### Setup
 
