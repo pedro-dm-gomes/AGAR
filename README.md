@@ -23,6 +23,15 @@ The Makefiles to compile the code are in `modules/tf_ops`
 
 ## Datasets
 
+#### Usage
+To train a model using AGAR on the Mixamo Dataset
+
+    python train-mixamo.py
+
+To evaluate the model
+
+    python eval-mixamo.py
+
 
 
 
