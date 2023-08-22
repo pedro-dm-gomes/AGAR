@@ -1,6 +1,10 @@
 # AGAR
 
-Code is currently being uploaded
+Project under submission
+
+[[Project]](https://github.com/pedro-dm-gomes/AGAR) [[Paper]](https://arxiv.org/abs/2307.09936)     
+
+
 
 ### Overview
 AGAR: Attention Graph-RNN for Adaptative Motion Prediction of Point Clouds of Deformable Objects
@@ -35,7 +39,4 @@ To evaluate the model
 
 
 
-### Usage
-
-
-### Citations 
+Code is currently being uploaded
