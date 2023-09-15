@@ -43,7 +43,7 @@ parser.add_argument('--down-points3', type= int , default = 2**2*2 , help='resto
 
 parser.add_argument('--log-dir', default='bodies', help='Log dir [default: outputs/bodies]')
 parser.add_argument('--version', default='v4', help='Model version')
-parser.add_argument('--manual-ckpt',type=int, default=0, help='Manual restore ckpt default[False]')
+parser.add_argument('--manual-ckpt',type=int, default=2, help='Manual restore ckpt default[False]')
 
 
 

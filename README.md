@@ -38,21 +38,29 @@ The models were evaluated with the following datasets:
 To create the Human Bodies dataset follow the instruction in the Dataset folder.
 
 
-
-
 ## Usage
 To train a model using AGAR on the Mixamo Dataset
 
-    python train-mixamo.py
+    python train-mixamo.py  --version <model_version>
 
 To evaluate the model
 
-    python eval-mixamo.py
-
-
+    python eval-mixamo.py  --version <model_version> 
 
 
 Code is currently being uploaded
+
+## Citation
+Please cite this paper if you want to use it in your work,
+
+	@article{gomes2023agar,
+	title={AGAR: Attention Graph-RNN for Adaptative Motion Prediction of Point Clouds of Deformable Objects},
+	  author={Pedro Gomes and Silvia Rossi and Laura Toni},
+	  year={2023},
+	  journal={arXiv preprint arXiv:2307.09936},
+	  }
+
+
 
 
 ## Acknowledgement
