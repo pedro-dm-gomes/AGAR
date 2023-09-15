@@ -55,8 +55,7 @@ def sample_and_group(
         tf.expand_dims(new_xyz, 2), [1, 1, nsample, 1]
     )  # translation normalization
 
-    print("FPS_index", FPS_index)
-    print("idx", FPS_index)
+
     # Group Features
     if features is not None:
         grouped_features = group_point(
@@ -68,7 +67,6 @@ def sample_and_group(
             )  # (batch_size, npoint, nsample, 3+channel)
         else:
             new_features = grouped_features
-            print("grouped_features", grouped_features)
     else:
         new_features = grouped_xyz
 
@@ -346,7 +344,6 @@ def pointnet_fp_module_original_interpolated(
     Return:
         new_points: (batch_size, ndataset1, mlp[-1]) TF tensor
     """
-    print("Original State Propgation")
 
     with tf.variable_scope(scope) as sc:
         dist, idx = three_nn(xyz1, xyz2)

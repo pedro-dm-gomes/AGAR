@@ -5,7 +5,7 @@ Python Script that train a graph neural network for point cloud prediction using
 
 import os
 #os.environ['OPENBLAS_NUM_THREADS'] = '1'
-#os.environ["CUDA_VISIBLE_DEVICES"]="9"
+os.environ["CUDA_VISIBLE_DEVICES"]="1"
 import sys
 import io
 from datetime import datetime
@@ -31,19 +31,21 @@ parser = argparse.ArgumentParser()
 
 # Input Arguments
 parser.add_argument('--data-path', default='/home/uceepdg/profile.V6/Desktop/Datasets/NPYs_Bodys', help='path')
-parser.add_argument('--manual-ckpt',type=int, default=0, help='Manual restore ckpt default[False]')
+parser.add_argument('--manual-ckpt',type=int, default=2, help='Manual restore ckpt default[False]')
 parser.add_argument('--ckpt-step', type=int, default=200000, help='Manual Checkpoint step [default: 200000]')
 parser.add_argument('--num-points', type=int, default=1000, help='Number of points [default: 4000]')
 parser.add_argument('--num-samples', type=int, default=8, help='Number of samples [default: 4]')
 parser.add_argument('--seq-length', type=int, default=12, help='Length of sequence [default: 12]')
-parser.add_argument('--mode', type=str, default='basic', help='Basic model or advanced model [default: advanced]')
+parser.add_argument('--mode', type=str, default='classic', help='Classic model or adaptative model [default: classic]')
 parser.add_argument('--unit', type=str, default='graphrnn', help='Unit. pointrnn, pointgru or pointlstm [default: pointlstm]')
 parser.add_argument('--down-points1', type= int , default = 2 , help='restore-training [default:2 Downsample frames at layer 1')
 parser.add_argument('--down-points2', type= int , default = 2*2, help='restore-training [default:2 Downsample frames at layer 2')
 parser.add_argument('--down-points3', type= int , default = 2**2*2 , help='restore-training [default:2 Downsample frames at layer 3')
 
-parser.add_argument('--log-dir', default='bodies', help='Log dir [default: outputs/mminst]')
-parser.add_argument('--version', default='v1b', help='Model version')
+parser.add_argument('--log-dir', default='bodies', help='Log dir [default: outputs/bodies]')
+parser.add_argument('--version', default='v4', help='Model version')
+
+
 
 print("\n EVALUATION SCRIPT \n")
 
@@ -96,18 +98,31 @@ checkpoint_path = os.path.join(checkpoint_dir, 'ckpt')
 ckpt_number = 0
 checkpoint_path_automatic = tf.train.latest_checkpoint(checkpoint_dir)
 ckpt_number = os.path.basename(os.path.normpath(checkpoint_path_automatic))
-ckpt_number=ckpt_number[5:]
-ckpt_number=int(ckpt_number)
-if(args.manual_ckpt == 0):
-	print("Automatic Restore")
-	checkpoint_path_automatic =checkpoint_path_automatic
-	log = open(os.path.join(args.log_dir, 'eval_ckp_' + str(ckpt_number) +'.log'), 'w')
-if(args.manual_ckpt == 1):
-	checkpoint_path = os.path.join(checkpoint_dir, 'ckpt-%d'%args.ckpt_step)
-	log = open(os.path.join(args.log_dir, 'eval_ckp_' + str(args.ckpt_step) +'.log'), 'w')
-	ckpt_number = args.ckpt_step
-	checkpoint_path_automatic =checkpoint_path
+print("checkpoint_path_automatic:", checkpoint_path_automatic)
 
+if(args.manual_ckpt == 0):
+  print("Automatic Restore")
+  ckpt_number=ckpt_number[5:]
+  ckpt_number=int(ckpt_number)	
+  checkpoint_path_automatic =checkpoint_path_automatic
+  log = open(os.path.join(args.log_dir, 'eval_ckp_' + str(ckpt_number) +'.log'), 'w')
+if(args.manual_ckpt == 1):
+  ckpt_number=ckpt_number[5:]
+  ckpt_number=int(ckpt_number)
+  checkpoint_path = os.path.join(checkpoint_dir, 'ckpt-%d'%args.ckpt_step)
+  log = open(os.path.join(args.log_dir, 'eval_ckp_' + str(args.ckpt_step) +'.log'), 'w')
+  ckpt_number = args.ckpt_step
+  checkpoint_path_automatic =checkpoint_path
+if(args.manual_ckpt == 2):
+  print("Restore the best")
+  #get best model
+  ckpt_number = 1
+  #checkpoint_path_automatic = tf.train.latest_checkpoint(args.log_dir)
+  print("checkpoint_path_automatic:", checkpoint_path_automatic)
+
+  
+  
+  
 
 
 
@@ -230,12 +245,7 @@ def run_test_sequence(sequence_nr):
     	model.predicted_motions,
     	model.loss,
     	model.emd,
-    	model.cd,
-    	model.out_s_xyz0,
-    	model.out_s_xyz1,
-    	model.out_s_xyz2,
-    	model.out_s_xyz3,
-    	model.out_s_feat3
+    	model.cd
     	]
 
     # Run Session 
@@ -247,11 +257,7 @@ def run_test_sequence(sequence_nr):
     loss,
     emd, 
     cd,
-    xyz0,
-    xyz1,
-    xyz2,
-    xyz3,
-    feat3
+
     ] = out
     
     downsample_frames = np.array(downsample_frames)
