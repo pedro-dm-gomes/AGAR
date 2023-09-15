@@ -476,6 +476,137 @@ def copy_feat_2(xyz1, xyz2, feat2):
 	         	     
 
 """
+This Must be double-checked and cleaned
+"""
+
+
+def Adaptative_Feature_Combination(P0,
+              P1,
+              P2,
+              P3,
+              S1,
+              S2,
+              S3,
+              nsample,
+              activation,
+              out_channels,
+              scope='attention_states_combination'):
+
+    """
+    Learn Sf for all P0 points
+    Input:
+        S1:     (batch_size, npoint, 3)
+        S2:     (batch_size, npoint, feat_channels)
+        S3:     
+    Output:
+        Sf:     (batch_size, npoint, out_channels)
+    """
+    
+    # Refined ALL Feature
+    # 3 .Pre-process all the three  States S1 & S2 S3
+    with tf.variable_scope('psi_S1', reuse=tf.AUTO_REUSE) as scope:
+    	psi_S1 = tf.layers.conv1d(inputs=S1, filters=out_channels, kernel_size=1, strides=1, padding='valid', data_format='channels_last', activation=tf.nn.relu, name='psi_s1')
+
+    with tf.variable_scope('psi_S2', reuse=tf.AUTO_REUSE) as scope:
+    	psi_S2 = tf.layers.conv1d(inputs=S2, filters=out_channels, kernel_size=1, strides=1, padding='valid', data_format='channels_last', activation=tf.nn.relu, name='psi_s2')
+
+    with tf.variable_scope('psi_S3', reuse=tf.AUTO_REUSE) as scope:
+    	psi_S3 = tf.layers.conv1d(inputs=S3, filters=out_channels, kernel_size=1, strides=1, padding='valid', data_format='channels_last', activation=tf.nn.relu, name='psi_s2')
+    	    	    	    	     
+    	    	     
+    # Multiply processed state by the attention
+    #print("psi_S1", psi_S1.shape)
+    #print("psi_S2", psi_S2.shape)
+    #print("psi_S3", psi_S3.shape)
+
+    # Grouping for P1
+    # 1.3 Find point in P1 for S3
+    dist, idx = knn_point(nsample, P3 ,P1) # For each point in P1 find the k-cloest point in S3
+    #print("idx - ", idx)
+    S3_grouped_to_P1 = group_point(psi_S3, idx)
+    #print("S3_grouped_to_P1", S3_grouped_to_P1)    
+    dist, idx = knn_point(nsample, P2 ,P1) # For each point in P1 find the k-cloest point in S3
+    S2_grouped_to_P1 = group_point(psi_S2, idx)
+    #print("S2_grouped_to_P1", S2_grouped_to_P1)    
+    
+
+    
+    #1.1 Expand points S3 to match dimension
+    S1_expanded = tf.tile(tf.expand_dims(psi_S1, 2), [1, 1, nsample, 1])
+    #print("S1_expanded", S1_expanded)    
+    S2_expanded = tf.tile(tf.expand_dims(psi_S2, 2), [1, 1, nsample, 1])
+    #print("S2_expanded", S2_expanded)    	
+    S3_expanded = tf.tile(tf.expand_dims(psi_S3, 2), [1, 1, nsample, 1])
+    #print("S3_expanded", S2_expanded)    
+    #print("")
+        
+    
+    
+ 
+    # 2. Learn Attention Weights
+    #print(" -- Learn Attention --")
+    #For states 1
+    concatenation = tf.concat( [S3_grouped_to_P1,S2_grouped_to_P1,S1_expanded], axis = 3)
+    with tf.variable_scope('attention_s1', reuse=tf.AUTO_REUSE) as scope:
+    	att_s1 = tf.layers.conv2d(inputs=concatenation, filters=1, kernel_size=1, strides=1, padding='valid', data_format='channels_last', activation=activation, name='at_s1')
+    #For states 2
+    with tf.variable_scope('attention_s2', reuse=tf.AUTO_REUSE) as scope:
+    	att_s2 = tf.layers.conv2d(inputs=concatenation, filters=1, kernel_size=1, strides=1, padding='valid', data_format='channels_last', activation=activation, name='at_s2')
+    #For states 3
+    with tf.variable_scope('attention_s3', reuse=tf.AUTO_REUSE) as scope:
+    	att_s3 = tf.layers.conv2d(inputs=concatenation, filters=1, kernel_size=1, strides=1, padding='valid', data_format='channels_last', activation=activation, name='at_s2') 
+
+    #print("att_s1", att_s1.shape)
+    #print("att_s2", att_s2.shape)
+    #print("att_s3", att_s3.shape)
+            
+    	    	     
+    	    	     
+    # Multiply processed state by the attention
+    att_s1 = tf.squeeze(att_s1, axis=2)
+    att_s2 = tf.squeeze(att_s2, axis=2)
+    att_s3 = tf.squeeze(att_s3, axis=2)
+    
+
+    #print("att_s1", att_s1.shape)
+    #print("att_s2", att_s2.shape)
+    #print("att_s3", att_s3.shape)
+        
+    
+
+    # Reshape 
+    S2_grouped_to_P1 = tf.squeeze(S2_grouped_to_P1, axis=2)
+    S3_grouped_to_P1 = tf.squeeze(S3_grouped_to_P1, axis=2)
+
+    S1 = att_s1 * psi_S1 *1
+    S2 = att_s2 * S2_grouped_to_P1 *1
+    S3 = att_s3 * S3_grouped_to_P1 *1   
+    
+
+    # 5. Process S3 and S_agreggation together
+    concatention = tf.concat( [S1, S2, S3], axis=2)
+    #print("concatention", concatention)
+    with tf.variable_scope('Sf_layer', reuse=tf.AUTO_REUSE) as scope:
+    	Sf = tf.layers.conv1d(inputs= concatention, filters=out_channels, kernel_size=1, strides=1, padding='valid', data_format='channels_last', activation=tf.nn.relu, name='final_Sf')    
+    
+
+    # 4. Aggregation 
+    # 4.1 Find point in P1 that match P0
+    dist, idx = knn_point(nsample, P1 ,P0) # For each point in P0 find the k-cloest point in P3
+    Sf_grouped_to_P0 = group_point(Sf, idx)
+    
+    Sf_grouped_to_P0 = tf.squeeze(Sf_grouped_to_P0, axis=2)   
+    Sf = Sf_grouped_to_P0
+    
+    
+    return (Sf, att_s1, att_s2, att_s3, psi_S1, S2_grouped_to_P1, S3_grouped_to_P1) 
+
+
+          
+
+
+
+"""
 
 Extra Modules 
 
@@ -1434,165 +1565,4 @@ def Efficient_GraphAttention_States_Combination_Full_Attention_perpoint(P0,
     
     
     return (Sf, att_s1, att_s2, att_s3, psi_S1, S2_grouped_to_P1, S3_grouped_to_P1) 
-
-def Efficient_GraphAttention_States_Combination_Full_Attention_perpoint_prerefined(P0,
-              P1,
-              P2,
-              P3,
-              S1,
-              S2,
-              S3,
-              nsample,
-              activation,
-              out_channels,
-              scope='attention_states_combination'):
-
-    """
-    Learn Sf for all P0 points
-    Input:
-        S1:     (batch_size, npoint, 3)
-        S2:     (batch_size, npoint, feat_channels)
-        S3:     
-    Output:
-        Sf:     (batch_size, npoint, out_channels)
-    """
-    print(" ==  Attention Pre-Refined ===")
-    
-    print("P0", P0)
-    print("P1", P1)
-    print("P2", P2)
-    print("P3", P3)
-
-    print("S1", S1)
-    print("S2", S2)
-    print("S3", S3)
-    print("")
-    
-    # 1. Mathch point between the point clouds.
-    """
-    Geo_Adj = tf_util.pairwise_distance_2point_cloud(P3, P1)
-    Geo_Adj= Geo_Adj[0]
-    P1_idx = tf_util.knn(Geo_Adj, k= nsample)
-    print("P1_idx", P1_idx)
-    # return for each point in P1 the neighboorhos in P3
-    """
-    
-    
-    # Refined ALL Feature
-    # 3 .Process States S1 & S2
-    with tf.variable_scope('psi_S1', reuse=tf.AUTO_REUSE) as scope:
-    	psi_S1 = tf.layers.conv1d(inputs=S1, filters=out_channels, kernel_size=1, strides=1, padding='valid', data_format='channels_last', activation=tf.nn.relu, name='psi_s1')
-
-    with tf.variable_scope('psi_S2', reuse=tf.AUTO_REUSE) as scope:
-    	psi_S2 = tf.layers.conv1d(inputs=S2, filters=out_channels, kernel_size=1, strides=1, padding='valid', data_format='channels_last', activation=tf.nn.relu, name='psi_s2')
-
-    with tf.variable_scope('psi_S3', reuse=tf.AUTO_REUSE) as scope:
-    	psi_S3 = tf.layers.conv1d(inputs=S3, filters=out_channels, kernel_size=1, strides=1, padding='valid', data_format='channels_last', activation=tf.nn.relu, name='psi_s2')
-    	    	    	    	     
-    	    	     
-    # Multiply processed state by the attention
-    print("psi_S1", psi_S1.shape)
-    print("psi_S2", psi_S2.shape)
-    print("psi_S3", psi_S3.shape)
-
-    # Grouping for P1
-    # 1.3 Find point in P1 for S3
-    dist, idx = knn_point(nsample, P3 ,P1) # For each point in P1 find the k-cloest point in S3
-    print("idx - ", idx)
-    S3_grouped_to_P1 = group_point(psi_S3, idx)
-    print("S3_grouped_to_P1", S3_grouped_to_P1)    
-    dist, idx = knn_point(nsample, P2 ,P1) # For each point in P1 find the k-cloest point in S3
-    S2_grouped_to_P1 = group_point(psi_S2, idx)
-    print("S2_grouped_to_P1", S2_grouped_to_P1)    
-    
-
-    
-    #1.1 Expand points S3 to match dimension
-    S1_expanded = tf.tile(tf.expand_dims(psi_S1, 2), [1, 1, nsample, 1])
-    print("S1_expanded", S1_expanded)    
-    S2_expanded = tf.tile(tf.expand_dims(psi_S2, 2), [1, 1, nsample, 1])
-    print("S2_expanded", S2_expanded)    	
-    S3_expanded = tf.tile(tf.expand_dims(psi_S3, 2), [1, 1, nsample, 1])
-    print("S3_expanded", S2_expanded)    
-    print("")
-        
-    
-    
- 
-    # 2. Learn Attention Weights
-    print(" -- Learn Attention --")
-    #For states 1
-    concatenation = tf.concat( [S3_grouped_to_P1,S2_grouped_to_P1,S1_expanded], axis = 3)
-    print("concatenation", concatenation)
-    with tf.variable_scope('attention_s1', reuse=tf.AUTO_REUSE) as scope:
-    	att_s1 = tf.layers.conv2d(inputs=concatenation, filters=1, kernel_size=1, strides=1, padding='valid', data_format='channels_last', activation=activation, name='at_s1')
-    #For states 2
-    with tf.variable_scope('attention_s2', reuse=tf.AUTO_REUSE) as scope:
-    	att_s2 = tf.layers.conv2d(inputs=concatenation, filters=1, kernel_size=1, strides=1, padding='valid', data_format='channels_last', activation=activation, name='at_s2')
-    #For states 3
-    with tf.variable_scope('attention_s3', reuse=tf.AUTO_REUSE) as scope:
-    	att_s3 = tf.layers.conv2d(inputs=concatenation, filters=1, kernel_size=1, strides=1, padding='valid', data_format='channels_last', activation=activation, name='at_s2') 
-
-    print("att_s1", att_s1.shape)
-    print("att_s2", att_s2.shape)
-    print("att_s3", att_s3.shape)
-            
-    	    	     
-    	    	     
-    # Multiply processed state by the attention
-    att_s1 = tf.squeeze(att_s1, axis=2)
-    att_s2 = tf.squeeze(att_s2, axis=2)
-    att_s3 = tf.squeeze(att_s3, axis=2)
-    
-
-    print("att_s1", att_s1.shape)
-    print("att_s2", att_s2.shape)
-    print("att_s3", att_s3.shape)
-        
-    
-
-    # Reshape 
-    S2_grouped_to_P1 = tf.squeeze(S2_grouped_to_P1, axis=2)
-    S3_grouped_to_P1 = tf.squeeze(S3_grouped_to_P1, axis=2)
-    
-    print("S2_grouped_to_P1", S2_grouped_to_P1)
-    print("S3_grouped_to_P1", S3_grouped_to_P1)
-    
-    S1 = att_s1 * psi_S1 *1
-    S2 = att_s2 * S2_grouped_to_P1 *1
-    S3 = att_s3 * S3_grouped_to_P1 *1   
-    
-
-    print("S1", S1)
-    print("S2", S2)
-    print("S3", S3)
-    print("")
-    
-        
-
-    # 5. Process S3 and S_agreggation together
-    concatention = tf.concat( [S1, S2, S3], axis=2)
-    print("concatenation", concatenation)
-    #print("concatention", concatention)
-    with tf.variable_scope('Sf_layer', reuse=tf.AUTO_REUSE) as scope:
-    	Sf = tf.layers.conv1d(inputs= concatention, filters=out_channels, kernel_size=1, strides=1, padding='valid', data_format='channels_last', activation=tf.nn.relu, name='final_Sf')    
-    
-    print("Sf", Sf)
-
-         
-    # 4. Aggregation 
-    # 4.1 Find point in P1 that match P0
-    dist, idx = knn_point(nsample, P1 ,P0) # For each point in P0 find the k-cloest point in P3
-    print("idx", idx)
-    Sf_grouped_to_P0 = group_point(Sf, idx)
-    
-    Sf_grouped_to_P0 = tf.squeeze(Sf_grouped_to_P0, axis=2)   
-    Sf = Sf_grouped_to_P0
-    print("Sf", Sf)
-    
-    
-    return (Sf, att_s1, att_s2, att_s3, psi_S1, S2_grouped_to_P1, S3_grouped_to_P1) 
-
-
-          
 

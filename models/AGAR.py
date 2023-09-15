@@ -448,16 +448,13 @@ class AdaptativeGraphRNN(object):
                         
             
             # Adaptative features combaination
-            states_final, att_s1, att_s2,att_s3,l0_feat,l1_feat, l2_feat = Efficient_GraphAttention_States_Combination_Full_Attention_perpoint_prerefined(xyz0, xyz1,xyz2,xyz3,l0_feat, l1_feat,l2_feat, nsample=1, activation =activation, out_channels= 128)
-            print("states_final", states_final.shape)
-            print("ATTENTION att_s1",att_s1.shape)
+            states_final, att_s1, att_s2,att_s3,l0_feat,l1_feat, l2_feat = Adaptative_Feature_Combination(xyz0, xyz1,xyz2,xyz3,l0_feat, l1_feat,l2_feat, nsample=1, activation =activation, out_channels= 128)
             extra = states_final
             
             #sates_combination = tf.concat(axis=2, values=[l0_feat, l1_feat, l2_feat])
             #print("\nFull Concatenated states: ",sates_combination)
                         
                 
-            print("\n === Fully Connected Layers GraphRNN ====\n") 
             with tf.variable_scope('fc', reuse=tf.AUTO_REUSE) as scope:
                 states_final = tf.layers.conv1d(inputs=states_final, filters=128, kernel_size=1, strides=1, padding='valid', data_format='channels_last', activation=tf.nn.relu, name='fc1')
                 predicted_motion = tf.layers.conv1d(inputs=states_final, filters=3, kernel_size=1, strides=1, padding='valid', data_format='channels_last', activation=None, name='fc2')
