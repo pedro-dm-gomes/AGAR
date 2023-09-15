@@ -29,7 +29,6 @@ For more details on how to compile these we refer the reader to the original Poi
 
 ## Datasets
 
-### Datasets
 The models were evaluated with the following datasets:
 1. [Mixamo - Human Bodies](https://drive.google.com/drive/folders/14SRpLT0X7yQPKJV7YDiZXEGJVnw1SkHN?usp=sharing) &emsp;
 1. [Moving MNIST Point Cloud (1 digit)](https://drive.google.com/open?id=17RpNwMLDcR5fLr0DJkRxmC5WgFn3RwK_) &emsp;
@@ -54,3 +53,16 @@ To evaluate the model
 
 
 Code is currently being uploaded
+
+
+## Acknowledgement
+The parts of this codebase is borrowed from Related Repos:
+
+### Related Repos
+1. PointRNN TensorFlow implementation: https://github.com/hehefan/PointRNN
+2. PointNet++ TensorFlow implementation: https://github.com/charlesq34/pointnet2
+3. Dynamic Graph CNN for Learning on Point Clouds https://github.com/WangYueFt/dgcnn
+4. Temporal Interpolation of Dynamic Point Clouds using Convolutional Neural Networks https://github.com/jelmr/pc_temporal_interpolation
+5. Spatio-temporal Graph-RNN for Point Cloud Prediction https://github.com/pedro-dm-gomes/Graph-RNN 
+
+
