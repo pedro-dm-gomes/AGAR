@@ -1,6 +1,6 @@
 # AGAR
 
-Project under submission
+Paper under submission
 
 [[Project]](https://github.com/pedro-dm-gomes/AGAR) [[Paper]](https://arxiv.org/abs/2307.09936)     
 
