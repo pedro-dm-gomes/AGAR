@@ -3,7 +3,7 @@ Python Script that train a graph neural network for point cloud prediction using
 """
 
 import os
-os.environ['OPENBLAS_NUM_THREADS'] = '5'
+#os.environ['OPENBLAS_NUM_THREADS'] = '5'
 #os.environ["CUDA_VISIBLE_DEVICES"]="7"
 import sys
 import io
@@ -39,7 +39,7 @@ parser.add_argument('--num-samples', type=int, default=8, help='Number of sample
 parser.add_argument('--seq-length', type=int, default=12, help='Length of sequence [default: 20]')
 parser.add_argument('--num-points', type=int, default=1000, help='Number of points [default: 1000]')
 
-parser.add_argument('--mode', type=str, default='adaptative', help='Classic model or adaptative model [default: classic]')
+parser.add_argument('--mode', type=str, default='classic', help='classic model or adaptative model [default: classic]')
 parser.add_argument('--unit', type=str, default='graphrnn', help='Unit. pointrnn, pointgru or pointlstm [default: pointlstm]')
 parser.add_argument('--step-length', type=float, default=0.1, help='Step length [default: 0.1]')
 parser.add_argument('--alpha', type=float, default=1.0, help='Weigh on CD loss [default: 1.0]')
