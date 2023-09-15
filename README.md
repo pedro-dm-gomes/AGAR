@@ -34,6 +34,15 @@ The models were evaluated with the following datasets:
 
 More information about the dataset (e.g, how to create/modify) can be find in the following github [https://github.com/pedro-dm-gomes/Human_Bodies_Dataset]
 
+2. [CWIPC_SXR - Real-World Human Bodies](https://drive.google.com/drive/folders/1zSuo80Vl0OObgKSUHm_TpOwpUNCFUz8-?usp=sharing) &emsp;
+
+3. [JPEG - Real-World Human Bodies](https://drive.google.com/drive/folders/1SK3PGcR7Vhg7lnT6rRaZBtqPbfr9uNzg?usp=sharing) &emsp;
+
+4. [MNIST - Digits](https://drive.google.com/drive/folders/1F9wnADjn8GR9ZVN9nr-lHnJYoKOBEQiS?usp=sharing) &emsp;
+
+5. [Argoverse - Automobile Scenes](https://drive.google.com/drive/folders/1L3A0xniJnIz6FrBAJuLVbYn1Mo4Ik1O5?usp=sharing)) &emsp;
+
+6. [MSRAction3D - Human Bodies for Action Recgnition](https://drive.google.com/drive/folders/1dZd3JLU1_DO1RsDlWeOGBzbHcovxF5Ws?usp=sharing) &emsp;
 
 
 ## Usage
