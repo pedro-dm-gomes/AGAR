@@ -45,8 +45,7 @@ To evaluate the model
 
     python eval-mixamo.py  --version <model_version> 
 
-
-Code is currently being uploaded
+Code is currently being uploaded/cleaned
 
 ## Citation
 Please cite this paper if you want to use it in your work,
@@ -57,9 +56,6 @@ Please cite this paper if you want to use it in your work,
 	  year={2023},
 	  journal={arXiv preprint arXiv:2307.09936},
 	  }
-
-
-
 
 ## Acknowledgement
 The parts of this codebase is borrowed from Related Repos:
