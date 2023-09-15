@@ -31,7 +31,6 @@ parser = argparse.ArgumentParser()
 
 # Input Arguments
 parser.add_argument('--data-path', default='/home/uceepdg/profile.V6/Desktop/Datasets/NPYs_Bodys', help='path')
-parser.add_argument('--manual-ckpt',type=int, default=2, help='Manual restore ckpt default[False]')
 parser.add_argument('--ckpt-step', type=int, default=200000, help='Manual Checkpoint step [default: 200000]')
 parser.add_argument('--num-points', type=int, default=1000, help='Number of points [default: 4000]')
 parser.add_argument('--num-samples', type=int, default=8, help='Number of samples [default: 4]')
@@ -44,6 +43,7 @@ parser.add_argument('--down-points3', type= int , default = 2**2*2 , help='resto
 
 parser.add_argument('--log-dir', default='bodies', help='Log dir [default: outputs/bodies]')
 parser.add_argument('--version', default='v4', help='Model version')
+parser.add_argument('--manual-ckpt',type=int, default=0, help='Manual restore ckpt default[False]')
 
 
 
@@ -100,31 +100,25 @@ checkpoint_path_automatic = tf.train.latest_checkpoint(checkpoint_dir)
 ckpt_number = os.path.basename(os.path.normpath(checkpoint_path_automatic))
 print("checkpoint_path_automatic:", checkpoint_path_automatic)
 
-if(args.manual_ckpt == 0):
-  print("Automatic Restore")
+if(args.manual_ckpt == 0): # Resotre Last checkpoint
+  print("Restore Last Checkpoint")
   ckpt_number=ckpt_number[5:]
   ckpt_number=int(ckpt_number)	
   checkpoint_path_automatic =checkpoint_path_automatic
   log = open(os.path.join(args.log_dir, 'eval_ckp_' + str(ckpt_number) +'.log'), 'w')
-if(args.manual_ckpt == 1):
+if(args.manual_ckpt == 1): # Restore Specific Checkpoint
   ckpt_number=ckpt_number[5:]
   ckpt_number=int(ckpt_number)
   checkpoint_path = os.path.join(checkpoint_dir, 'ckpt-%d'%args.ckpt_step)
   log = open(os.path.join(args.log_dir, 'eval_ckp_' + str(args.ckpt_step) +'.log'), 'w')
   ckpt_number = args.ckpt_step
   checkpoint_path_automatic =checkpoint_path
-if(args.manual_ckpt == 2):
+if(args.manual_ckpt == 2): # Restore the best checkpoint
   print("Restore the best")
   #get best model
   ckpt_number = 1
   #checkpoint_path_automatic = tf.train.latest_checkpoint(args.log_dir)
   print("checkpoint_path_automatic:", checkpoint_path_automatic)
-
-  
-  
-  
-
-
 
 # Test Example Folder
 example_dir = os.path.join(args.log_dir, 'test-examples')

@@ -3,7 +3,7 @@ Python Script that train a graph neural network for point cloud prediction using
 """
 
 import os
-#os.environ['OPENBLAS_NUM_THREADS'] = '5'
+os.environ['OPENBLAS_NUM_THREADS'] = '5'
 #os.environ["CUDA_VISIBLE_DEVICES"]="7"
 import sys
 import io
@@ -29,8 +29,8 @@ parser.add_argument('--batch-size', type=int, default=16, help='Batch Size durin
 parser.add_argument('--num-iters', type=int, default=800000, help='Iterations to run [default: 800000]')
 parser.add_argument('--save-cpk', type=int, default=1, help='Iterations to save checkpoints [default: 1]')
 parser.add_argument('--save-summary', type=int, default=100, help='Iterations to update summary [default: 1]')
-parser.add_argument('--save-iters', type=int, default=10000, help='Iterations to save examples [default: 100000]')
-
+parser.add_argument('--save-iters', type=int, default=10000, help='Iterations to save examples [default: 1]')
+1
 parser.add_argument('--learning-rate', type=float, default=1e-4, help='Learning rate [default: 1e-4]')
 parser.add_argument('--activation', type= int, default=0, help=' Activation function [default: 0=None or 1=tf.nn.relu]')
 parser.add_argument('--max-gradient-norm', type=float, default=5.0, help='Clip gradients[default: 5.0 or 1e10 no clip].')
@@ -39,7 +39,7 @@ parser.add_argument('--num-samples', type=int, default=8, help='Number of sample
 parser.add_argument('--seq-length', type=int, default=12, help='Length of sequence [default: 20]')
 parser.add_argument('--num-points', type=int, default=1000, help='Number of points [default: 1000]')
 
-parser.add_argument('--mode', type=str, default='classic', help='Classic model or adaptative model [default: classic]')
+parser.add_argument('--mode', type=str, default='adaptative', help='Classic model or adaptative model [default: classic]')
 parser.add_argument('--unit', type=str, default='graphrnn', help='Unit. pointrnn, pointgru or pointlstm [default: pointlstm]')
 parser.add_argument('--step-length', type=float, default=0.1, help='Step length [default: 0.1]')
 parser.add_argument('--alpha', type=float, default=1.0, help='Weigh on CD loss [default: 1.0]')
@@ -47,7 +47,7 @@ parser.add_argument('--beta', type=float, default= 1.0, help='Weigh on EMD loss 
 parser.add_argument('--alpha_color', type=float, default=0.0, help='Weigh on CD color loss [default: 1.0]')
 parser.add_argument('--beta_color', type=float, default=0.0, help='Weigh on EMD color loss [default: 1.0]')
 parser.add_argument('--log-dir', default='bodies', help='Log dir [default: outputs/mminst]')
-parser.add_argument('--version', default='v4', help='Model version')
+parser.add_argument('--version', default='vf', help='Model version')
 parser.add_argument('--restore-training', type= int , default = 0 , help='restore-training [default: 0=False 1= True]')
 parser.add_argument('--down-points1', type= int , default = 2 , help='restore-training [default:2 Downsample frames at layer 1')
 parser.add_argument('--down-points2', type= int , default = 2*2 , help='restore-training [default:2 Downsample frames at layer 2')
@@ -68,7 +68,7 @@ args.log_dir = 'outputs/' +args.log_dir
 args.log_dir += '-bodies-%s-%s'%(args.mode, args.unit)
 args.log_dir += '_'+ str(args.version)
 
-print("\n ==== GRAPH-RNN for BODIES DATASET  ====== \n")
+print("\n ==== AGAR for Mixamo Dataset  ====== \n")
 
 #Define training dataset
 train_dataset = Dataset_Full_Random_without_color(root=args.data_dir,
@@ -127,12 +127,12 @@ summary_op = tf.summary.merge_all()
 
 # Checkpoint Directory
 checkpoint_dir = os.path.join(args.log_dir, 'checkpoints')
-
 if not os.path.exists(checkpoint_dir):
     os.makedirs(checkpoint_dir)
 checkpoint_path = os.path.join(checkpoint_dir, 'ckpt')
-best_checkpoint_path = os.path.join(checkpoint_dir, "best_model")
-
+best_checkpoint_path = os.path.join(checkpoint_dir + 'best_checkpoint', "best_model")
+if not os.path.exists(best_checkpoint_path):
+    os.makedirs(best_checkpoint_path)
 
 # Restore Checkpoint
 saver = tf.train.Saver(max_to_keep=3, keep_checkpoint_every_n_hours = 5)
@@ -235,12 +235,11 @@ with tf.Session(  config = config) as sess:
 
 
         # SAVE CHECKPOINT
-        if ( (i+1) % args.save_cpk == 0  or i==200000):
-            ckpt = os.path.join(checkpoint_path, )
-            saver.save(sess, checkpoint_path, global_step=model.global_step)    
+        if ( (i+1) % args.save_cpk == 0  or i==200000):  
             if total_emd < best_validation_loss:
                 best_save_path = saver_best.save(sess, best_checkpoint_path )
-          
+            ckpt = os.path.join(checkpoint_path, )
+            saver.save(sess, checkpoint_path, global_step=model.global_step)  
         
        
             
